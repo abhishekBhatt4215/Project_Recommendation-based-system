@@ -1,0 +1,40 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+.pytest_cache/
+CACHEDIR.TAG
+
+# Django
+db.sqlite3
+media/
+
+# Environment variables
+.env
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Test & coverage
+htmlcov/
+.coverage
+.coverage.*
+.nox/
+.tox/
+
+desktop.ini
+
+
+
