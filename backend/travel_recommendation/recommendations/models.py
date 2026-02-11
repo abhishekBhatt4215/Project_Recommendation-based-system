@@ -15,6 +15,8 @@ class Traveler(models.Model):
     bio = models.TextField(blank=True)
     featured = models.BooleanField(default=False)
     profile_pic = models.ImageField(upload_to='profiles/', blank=True, null=True)
+    interests = models.TextField(blank=True, help_text="Comma-separated interests (e.g., hiking, museums, food)")
+    travel_style = models.CharField(max_length=100, blank=True, help_text="Travel style preference (e.g., budget, luxury, adventure)")
 
 class Recommendation(models.Model):
 	city = models.CharField(max_length=100)
@@ -42,6 +44,17 @@ class Trip(models.Model):
     end_date = models.DateField()
     title = models.CharField(max_length=200)
     notes = models.TextField(blank=True)	  
-    
 
-# Create your models here.
+
+class AIInteraction(models.Model):
+    """Stores AI interaction history per authenticated user."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ai_interactions')
+    prompt = models.TextField()
+    ai_response = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.created_at}"

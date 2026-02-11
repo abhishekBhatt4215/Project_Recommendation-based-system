@@ -77,7 +77,29 @@ We added basic automated tests to help you get quick confidence:
 
 These tests mock the `agent` in the FastAPI app and verify validation, streaming, and error handling.
 
-## 6) Test streaming and error handling
+## 6) Health endpoint & structured logging
+
+- Health endpoint:
+  - GET `/health` returns a JSON object with `status`, `service`, `version`, `uptime`, and `timestamp`.
+  - Example:
+
+```bash
+curl -s http://localhost:8001/health | jq
+```
+
+- Structured JSON logs:
+  - The AI service now uses a lightweight `JsonFormatter` for `travelai` logger which outputs JSON lines to stdout.
+  - Example log entry:
+
+```json
+{"timestamp": "2026-01-01T00:00:00Z", "level": "INFO", "module": "travelai", "message": "Chat endpoint started"}
+```
+
+- Tests:
+  - `test_health_detailed` verifies `/health` response structure.
+  - `test_json_formatter` ensures the formatter emits valid JSON with `message` and `level`.
+
+## 7) Test streaming and error handling
 
 - Chat streaming endpoint:
 

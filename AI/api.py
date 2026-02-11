@@ -7,12 +7,35 @@ from pydantic import BaseModel, Field, validator
 from typing import Optional
 from datetime import datetime
 import logging
+import time
+import json
 
 from agent_core import TravelAI
 
-# Simple logging config for the AI service; in production use structured logging/central collector
-logging.basicConfig(level=logging.INFO)
+# Simple structured JSON logging for the AI service (lightweight, no external deps)
+class JsonFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        payload = {
+            'timestamp': datetime.utcnow().isoformat() + 'Z',
+            'level': record.levelname,
+            'module': record.name,
+            'message': record.getMessage(),
+        }
+        # Include extra attributes if present
+        if hasattr(record, 'request_id'):
+            payload['request_id'] = record.request_id
+        return json.dumps(payload)
+
+# Configure logger
 logger = logging.getLogger('travelai')
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+handler.setFormatter(JsonFormatter())
+# Replace any existing handlers to avoid duplicate logs in tests
+logger.handlers = [handler]
+
+# Track service start time for /health uptime
+START_TIME = time.time()
 
 
 # Helper to parse ISO date-like strings
@@ -99,8 +122,22 @@ class TripRequest(BaseModel):
 # HEALTH
 # -------------------------------------------------
 @app.get("/")
-def health():
+def root_health():
+    # keep a simple root response for quick checks
     return {"status": "ok", "service": "TravelAI"}
+
+@app.get("/health")
+def health():
+    """Detailed health endpoint with uptime and timestamp."""
+    now = time.time()
+    uptime = max(0.0, now - START_TIME)
+    return {
+        "status": "ok",
+        "service": "TravelAI",
+        "version": "0.1.0",
+        "uptime": round(uptime, 2),
+        "timestamp": datetime.utcnow().isoformat() + 'Z'
+    }
 
 
 # -------------------------------------------------

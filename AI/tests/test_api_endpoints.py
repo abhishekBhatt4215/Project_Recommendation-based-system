@@ -119,3 +119,25 @@ def test_refine_trip():
     r = client.post('/refine', json={'itinerary': 'orig', 'user_request': 'add museum'})
     assert r.status_code == 200
     assert r.json()['itinerary'] == 'Updated itinerary'
+
+
+def test_health_detailed():
+    client = get_client()
+    r = client.get('/health')
+    assert r.status_code == 200
+    body = r.json()
+    assert body['status'] == 'ok'
+    assert 'uptime' in body and isinstance(body['uptime'], float) and body['uptime'] >= 0
+    # timestamp should be parseable
+    from datetime import datetime
+    datetime.fromisoformat(body['timestamp'].replace('Z', ''))
+
+
+def test_json_formatter():
+    import logging, json
+    fmt = api.JsonFormatter()
+    rec = logging.LogRecord(name='test', level=logging.INFO, pathname=__file__, lineno=1, msg='hello', args=(), exc_info=None)
+    s = fmt.format(rec)
+    obj = json.loads(s)
+    assert obj['message'] == 'hello'
+    assert obj['level'] == 'INFO'
