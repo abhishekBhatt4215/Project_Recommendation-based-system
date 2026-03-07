@@ -33,8 +33,7 @@ class AIPlanProxyView(APIView):
         payload = request.data
         ai_url = getattr(settings, 'AI_SERVICE_URL', 'http://localhost:8001')
         
-        # Extract user prompt from payload (assume it's under 'prompt' or 'query' key)
-        # Adjust key based on actual AI service request format
+       
         user_prompt = payload.get('prompt') or payload.get('query') or str(payload)
         
         try:
